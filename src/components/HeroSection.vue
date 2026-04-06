@@ -10,7 +10,7 @@
     </ul>
 
     <div class="hero__photo-wrap">
-      <img src="/profile3.jpg" alt="Lance Tinoco" class="hero__photo" />
+      <img src="/profile.jpg" alt="Lance Tinoco" class="hero__photo" />
     </div>
 
     <div class="hero__name-wrap" ref="nameWrapRef">
