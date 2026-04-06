@@ -427,7 +427,7 @@ const projects = [
     type: 'Web App',
     lang: 'JavaScript',
     media: [
-      { type: 'video', src: '/projects/weathertoday.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/weathertoday.mp4' },
     ],
     live: 'https://weathertoday-by-lancetinoco.netlify.app',
     github: '#',
