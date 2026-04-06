@@ -352,8 +352,8 @@ const projects = [
     type: 'Dev Tool · Internship',
     lang: 'JavaScript',
     media: [
-      { type: 'image', src: '/projects/fingerprint.png' },
-      { type: 'image', src: '/projects/fingerprint2.png' },
+      { type: 'image', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/fingerprint.png' },
+      { type: 'image', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/fingerprint2.png' },
     ],
     live: '#',
     github: '#',
@@ -427,7 +427,7 @@ const projects = [
     type: 'Web App',
     lang: 'JavaScript',
     media: [
-      { type: 'video', src: '/projects/weathertoday.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/weathertoday.mp4' },
     ],
     live: 'https://weathertoday-by-lancetinoco.netlify.app',
     github: '#',
