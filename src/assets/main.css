@@ -1,0 +1,85 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:      #0c0c0c;
+  --white:      #f7f5f1;
+  --gray:       #999;
+  --lightgray:  #ddd;
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-mono:    'DM Mono', monospace;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* theme tokens — these get swapped per section */
+  --bg:         #f7f5f1;
+  --fg:         #0c0c0c;
+  --fg-muted:   #999;
+  --border:     #ddd;
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.7s var(--ease-out), color 0.7s var(--ease-out);
+}
+
+/* dark theme class on body */
+body.theme-dark {
+  --bg:        #0c0c0c;
+  --fg:        #f7f5f1;
+  --fg-muted:  #666;
+  --border:    #2a2a2a;
+  --black:     #f7f5f1;
+  --white:     #0c0c0c;
+  --gray:      #666;
+  --lightgray: #2a2a2a;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  z-index: 9999; pointer-events: none; opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+}
+
+a { color: inherit; text-decoration: none; }
+
+.cursor {
+  position: fixed; z-index: 10000; pointer-events: none;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+}
+.cursor__dot {
+  width: 8px; height: 8px;
+  background: var(--fg); border-radius: 50%;
+  transition: transform 0.25s var(--ease-out);
+}
+.cursor--big .cursor__dot { transform: scale(6); }
+
+.u-label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.u-serif { font-family: var(--font-display); }
+
+.reveal {
+  opacity: 0; transform: translateY(32px);
+  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+::selection { background: var(--fg); color: var(--bg); }
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--fg); }
