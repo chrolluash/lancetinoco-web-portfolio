@@ -347,7 +347,7 @@ const projects = [
     ],
   },
   {
-    name: '<em>Fingerprint</em> Scanner Test and Template using HF4000',
+    name: '<em>Fingerprint</em> Scanner Tester and Template using HF4000',
     desc: 'Browser dev & testing template for HF4000 Fingerprint Scanner. Enrollment and fingerprint comparison using WebSocket. Built with HF4000 manufacturerSDK.',
     type: 'Dev Tool · Internship',
     lang: 'JavaScript',
