@@ -25,7 +25,6 @@
           @mouseleave="$emit('unhover')"
           @click="openModal(p)"
         >
-          <!-- bg media: show first item only on card -->
           <div class="work__card-bg">
             <template v-if="p.media && p.media.length">
               <video
@@ -65,19 +64,17 @@
       <Transition name="modal">
         <div v-if="active" class="modal" @click.self="closeModal">
 
-          <!-- slideshow bg -->
           <div class="modal__bg">
             <template v-if="active.media && active.media.length">
               <TransitionGroup name="slide">
-                <template
-                  v-for="(m, mi) in active.media"
-                  :key="mi"
-                >
+                <template v-for="(m, mi) in active.media" :key="mi">
                   <video
                     v-if="m.type === 'video' && mi === slideIndex"
                     :src="m.src"
-                    autoplay loop muted playsinline
+                    autoplay muted playsinline
                     class="modal__bg-media"
+                    :ref="el => { if (el) currentVideoEl = el }"
+                    @ended="onVideoEnded"
                   />
                   <img
                     v-else-if="m.type !== 'video' && mi === slideIndex"
@@ -88,96 +85,49 @@
                 </template>
               </TransitionGroup>
             </template>
-            <!-- no media fallback -->
             <div v-else class="modal__bg-empty"></div>
           </div>
           <div class="modal__bg-overlay"></div>
 
-          <!-- slideshow controls — only if more than 1 media -->
           <div v-if="active.media && active.media.length > 1" class="modal__slides">
-            <button
-              class="modal__slide-btn u-label"
-              @click="prevSlide"
-              @mouseenter="$emit('hover')"
-              @mouseleave="$emit('unhover')"
-            >←</button>
+            <button class="modal__slide-btn u-label" @click="prevSlide" @mouseenter="$emit('hover')" @mouseleave="$emit('unhover')">←</button>
             <div class="modal__slide-dots">
               <span
                 v-for="(_, mi) in active.media"
                 :key="mi"
                 class="modal__dot"
                 :class="{ 'modal__dot--active': mi === slideIndex }"
-                @click="slideIndex = mi"
+                @click="goToSlide(mi)"
               ></span>
             </div>
-            <button
-              class="modal__slide-btn u-label"
-              @click="nextSlide"
-              @mouseenter="$emit('hover')"
-              @mouseleave="$emit('unhover')"
-            >→</button>
+            <button class="modal__slide-btn u-label" @click="nextSlide" @mouseenter="$emit('hover')" @mouseleave="$emit('unhover')">→</button>
           </div>
 
-          <!-- close -->
-          <button
-            class="modal__close u-label"
-            @click="closeModal"
-            @mouseenter="$emit('hover')"
-            @mouseleave="$emit('unhover')"
-          >✕ close</button>
+          <button class="modal__close u-label" @click="closeModal" @mouseenter="$emit('hover')" @mouseleave="$emit('unhover')">✕ close</button>
 
-          <!-- project number -->
           <span class="modal__num u-label">
             {{ String(projects.indexOf(active) + 1).padStart(2, '0') }} / {{ String(projects.length).padStart(2, '0') }}
           </span>
 
-          <!-- centered content -->
           <div class="modal__content">
-
             <div class="modal__tags">
-              <span
-                v-for="t in active.type.split('·').map(s => s.trim())"
-                :key="t"
-                class="modal__tag u-label"
-              >{{ t }}</span>
+              <span v-for="t in active.type.split('·').map(s => s.trim())" :key="t" class="modal__tag u-label">{{ t }}</span>
             </div>
-
             <h2 class="modal__title u-serif" v-html="active.name"></h2>
             <p class="modal__desc">{{ active.desc }}</p>
-
             <div class="modal__divider"></div>
-
             <div class="modal__bottom">
               <div class="modal__icons">
-                <span
-                  v-for="icon in active.icons"
-                  :key="icon.class"
-                  class="modal__icon-wrap"
-                  :title="icon.label"
-                >
+                <span v-for="icon in active.icons" :key="icon.class" class="modal__icon-wrap" :title="icon.label">
                   <i :class="['devicon-' + icon.class, 'modal__icon']"></i>
                   <span class="modal__icon-label u-label">{{ icon.label }}</span>
                 </span>
               </div>
-
               <div class="modal__links">
-                <a
-                  :href="active.live || '#'"
-                  class="modal__btn modal__btn--primary u-label"
-                  target="_blank"
-                  @mouseenter="$emit('hover')"
-                  @mouseleave="$emit('unhover')"
-                >View Live ↗</a>
-                <a
-                  :href="active.github || '#'"
-                  class="modal__btn modal__btn--ghost u-label"
-                  target="_blank"
-                  @mouseenter="$emit('hover')"
-                  @mouseleave="$emit('unhover')"
-                >GitHub ↗</a>
+                <a :href="active.live || '#'" class="modal__btn modal__btn--primary u-label" target="_blank" @mouseenter="$emit('hover')" @mouseleave="$emit('unhover')">View Live ↗</a>
+                <a :href="active.github || '#'" class="modal__btn modal__btn--ghost u-label" target="_blank" @mouseenter="$emit('hover')" @mouseleave="$emit('unhover')">GitHub ↗</a>
               </div>
             </div>
-
           </div>
 
         </div>
@@ -188,24 +138,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 defineEmits(['hover', 'unhover'])
 
 // ── Modal & slideshow ──
 const active = ref(null)
 const slideIndex = ref(0)
+const currentVideoEl = ref(null)
+let slideTimer = null
+const IMAGE_DURATION = 2500
 
-function openModal(p) {
-  active.value = p
-  slideIndex.value = 0
-  document.body.style.overflow = 'hidden'
-}
-
-function closeModal() {
-  active.value = null
-  slideIndex.value = 0
-  document.body.style.overflow = ''
+function scheduleNext() {
+  clearTimeout(slideTimer)
+  if (!active.value || active.value.media.length <= 1) return
+  const current = active.value.media[slideIndex.value]
+  if (current.type === 'video') return
+  slideTimer = setTimeout(nextSlide, IMAGE_DURATION)
 }
 
 function nextSlide() {
@@ -218,102 +167,110 @@ function prevSlide() {
   slideIndex.value = (slideIndex.value - 1 + active.value.media.length) % active.value.media.length
 }
 
-// auto-advance slideshow every 4s
-let slideTimer = null
+function goToSlide(i) {
+  clearTimeout(slideTimer)
+  slideIndex.value = i
+}
+
+function onVideoEnded() {
+  nextSlide()
+}
+
+watch(slideIndex, () => { nextTick(scheduleNext) })
+
 watch(active, (val) => {
-  clearInterval(slideTimer)
-  if (val && val.media && val.media.length > 1) {
-    slideTimer = setInterval(nextSlide, 4000)
-  }
+  clearTimeout(slideTimer)
+  currentVideoEl.value = null
+  if (val && val.media && val.media.length > 1) nextTick(scheduleNext)
 })
+
+function openModal(p) {
+  active.value = p
+  slideIndex.value = 0
+  document.body.style.overflow = 'hidden'
+}
+
+function closeModal() {
+  clearTimeout(slideTimer)
+  active.value = null
+  slideIndex.value = 0
+  currentVideoEl.value = null
+  // Restore scroll — but only release body overflow if not scroll-locked
+  document.body.style.overflow = isLocked ? 'hidden' : ''
+}
 
 function onKeydown(e) {
   if (e.key === 'Escape') closeModal()
-  if (e.key === 'ArrowRight') nextSlide()
-  if (e.key === 'ArrowLeft') prevSlide()
+  if (e.key === 'ArrowRight') { clearTimeout(slideTimer); nextSlide() }
+  if (e.key === 'ArrowLeft') { clearTimeout(slideTimer); prevSlide() }
 }
 
 // ── Horizontal scroll lock ──
 const trackWrap = ref(null)
 let isLocked = false
-let ticking = false
-
-function lockScroll() {
-  if (isLocked) return
-  isLocked = true
-  document.body.style.overflow = 'hidden'
-  const section = document.getElementById('work')
-  if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-function unlockScroll() {
-  if (!isLocked) return
-  isLocked = false
-  if (!active.value) document.body.style.overflow = ''
-}
 
 function onWheel(e) {
+  // Never intercept while modal is open
   if (active.value) return
+
   const el = trackWrap.value
   if (!el) return
 
-  const atEnd   = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2
+  const section = document.getElementById('work')
+  if (!section) return
+
+  const rect = section.getBoundingClientRect()
+  const atEnd   = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2
   const atStart = el.scrollLeft <= 1
 
-  if (isLocked) {
-    e.preventDefault()
-    if (atEnd && e.deltaY > 0) { unlockScroll(); return }
-    if (atStart && e.deltaY < 0) { unlockScroll(); return }
-    el.scrollLeft += e.deltaY * 1.2
+  if (!isLocked) {
+    // Engage lock when: section top is snapped to viewport top, scrolling down, cards not all shown
+    if (rect.top <= 2 && rect.top >= -10 && e.deltaY > 0 && !atEnd) {
+      e.preventDefault()
+      isLocked = true
+      document.body.style.overflow = 'hidden'
+      // Snap section to top instantly so it stays pinned
+      section.scrollIntoView({ behavior: 'instant', block: 'start' })
+      el.scrollLeft += e.deltaY * 1.2
+    }
+    // Not locked and not at trigger point — let page scroll normally
     return
   }
 
-  const section = document.getElementById('work')
-  if (!section) return
-  const rect = section.getBoundingClientRect()
-  const nearTop = rect.top >= -10 && rect.top <= 10
+  // Currently locked — intercept all wheel events
+  e.preventDefault()
 
-  if (nearTop && e.deltaY > 0 && !atEnd) {
-    e.preventDefault()
-    lockScroll()
-    el.scrollLeft += e.deltaY * 1.2
+  // Unlock: reached end and still scrolling down → release to continue page scroll
+  if (atEnd && e.deltaY > 0) {
+    isLocked = false
+    document.body.style.overflow = ''
+    return
   }
-}
 
-function onScroll() {
-  if (isLocked || ticking || active.value) return
-  ticking = true
-  requestAnimationFrame(() => {
-    const section = document.getElementById('work')
-    if (!section) { ticking = false; return }
-    const rect = section.getBoundingClientRect()
-    if (rect.top <= 1 && rect.top >= -10) {
-      const el = trackWrap.value
-      if (el && el.scrollLeft < el.scrollWidth - el.clientWidth - 2) lockScroll()
-    }
-    ticking = false
-  })
+  // Unlock: back at start and scrolling up → release to scroll page up
+  if (atStart && e.deltaY < 0) {
+    isLocked = false
+    document.body.style.overflow = ''
+    return
+  }
+
+  // Drive horizontal scroll with vertical wheel
+  el.scrollLeft += e.deltaY * 1.2
 }
 
 onMounted(() => {
-  const el = trackWrap.value
-  if (el) el.addEventListener('wheel', onWheel, { passive: false })
-  window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('wheel', onWheel, { passive: false })
   window.addEventListener('keydown', onKeydown)
 })
 
 onUnmounted(() => {
-  clearInterval(slideTimer)
-  const el = trackWrap.value
-  if (el) el.removeEventListener('wheel', onWheel)
-  window.removeEventListener('scroll', onScroll)
+  clearTimeout(slideTimer)
+  window.removeEventListener('wheel', onWheel)
   window.removeEventListener('keydown', onKeydown)
-  unlockScroll()
+  isLocked = false
+  document.body.style.overflow = ''
 })
 
-// ── Projects ──
-// media: array of { type: 'image' | 'video', src: '/path/to/file' }
-// if only 1 item → single bg; if 2+ → auto slideshow with controls
 const projects = [
   {
     name: '<em>Task</em> List',
@@ -337,7 +294,8 @@ const projects = [
     type: 'Web App · IoT · Internship',
     lang: 'Vue.js / Laravel',
     media: [
-      { type: 'video', src: '/projects/storetime.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/storetime1.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/storetime2.mp4' },
     ],
     live: '#',
     github: '#',
@@ -348,7 +306,7 @@ const projects = [
   },
   {
     name: '<em>Fingerprint</em> Scanner Tester and Template using HF4000',
-    desc: 'Browser dev & testing template for HF4000 Fingerprint Scanner. Enrollment and fingerprint comparison using WebSocket. Built with HF4000 manufacturerSDK.',
+    desc: 'Browser dev & testing template for HF4000 Fingerprint Scanner. Enrollment and fingerprint comparison using WebSocket. Built with HF4000 manufacturer SDK.',
     type: 'Dev Tool · Internship',
     lang: 'JavaScript',
     media: [
@@ -367,6 +325,7 @@ const projects = [
     type: 'Web App · Internship',
     lang: 'Blade / PHP',
     media: [
+      { type: 'image', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/leaverequest.png' },
       { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/leaverequest.mp4' },
     ],
     live: '#',
@@ -382,7 +341,9 @@ const projects = [
     type: 'Web App',
     lang: 'PHP / JavaScript',
     media: [
-      { type: 'video', src: '/projects/rentconnect.mp4' },
+      { type: 'image', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/rentconnect.png' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/rentconnect1.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/rentconnect2.mp4' },
     ],
     live: '#',
     github: '#',
@@ -397,6 +358,7 @@ const projects = [
     type: 'Web App · E-Commerce',
     lang: 'PHP',
     media: [
+      { type: 'image', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/big4k.png' },
       { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/big4k.mp4' },
     ],
     live: '#',
@@ -411,7 +373,8 @@ const projects = [
     type: 'Mobile App · E-Commerce',
     lang: 'Dart / Flutter',
     media: [
-      { type: 'video', src: '/projects/locals.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/locals1.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/locals2.mp4' },
     ],
     live: '#',
     github: '#',
@@ -423,7 +386,7 @@ const projects = [
   },
   {
     name: '<em>Weather</em> Today',
-    desc: 'Minimal weather app with clean aesthetics powered by Weather API, covering Luzon. First API Project',
+    desc: 'Minimal weather app with clean aesthetics powered by Weather API, covering Luzon. First API Project.',
     type: 'Web App',
     lang: 'JavaScript',
     media: [
@@ -641,7 +604,6 @@ const projects = [
   padding: 3rem;
 }
 
-/* slideshow bg */
 .modal__bg {
   position: absolute;
   inset: 0;
@@ -666,11 +628,8 @@ const projects = [
   background: #0c0c0c;
 }
 
-/* slide transition */
 .slide-enter-active,
-.slide-leave-active {
-  transition: opacity 0.8s var(--ease-out);
-}
+.slide-leave-active { transition: opacity 0.6s var(--ease-out); }
 .slide-enter-from,
 .slide-leave-to { opacity: 0; }
 
@@ -681,7 +640,6 @@ const projects = [
   z-index: 1;
 }
 
-/* slideshow controls — bottom center */
 .modal__slides {
   position: absolute;
   bottom: 2rem;

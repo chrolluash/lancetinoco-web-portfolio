@@ -46,7 +46,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const disciplines = ['Full-Stack Web Dev', 'IoT', 'IT Undergrad']
+const disciplines = ['Basic Tech Support', 'Web Development', 'IT Undergrad', 'Web UI/UX', 'IoT',]
 
 const nameWrapRef = ref(null)
 const progress    = ref(0)
@@ -193,7 +193,7 @@ onUnmounted(() => {
 /* ── Disciplines ── */
 .hero__disciplines {
   position: absolute;
-  top: 3rem;
+  top: 1rem;
   right: clamp(270px, 34vw, 480px);
   list-style: none;
   display: flex;

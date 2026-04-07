@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-const traits = ['Full-StackWeb Dev', 'Mobile Dev', 'IoT', 'Basic Tech-Support', 'IT Helpdesk', 'Information Technology Undergrad']
+const traits = ['Web Development', 'Web UI/UX', 'IoT', 'Basic Tech Support', 'IT Helpdesk', 'Information Technology Undergrad']
 
 const timeline = [
   {

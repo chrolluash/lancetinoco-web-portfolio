@@ -98,7 +98,6 @@ const groups = [
   display: flex;
   flex-direction: column;
   gap: 0;
-  border-top: 1px solid var(--lightgray);
 }
 
 .stack__group {
@@ -107,7 +106,6 @@ const groups = [
   gap: 2rem;
   align-items: start;
   padding: 2rem 0;
-  border-bottom: 1px solid var(--lightgray);
 }
 
 .stack__group-label {

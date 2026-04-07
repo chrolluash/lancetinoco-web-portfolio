@@ -1,7 +1,11 @@
 <template>
-  <div class="cursor" :class="{ 'cursor--big': cursorBig }"
-    :style="{ left: cx + 'px', top: cy + 'px' }">
+  <div
+    class="cursor"
+    :class="{ 'cursor--big': cursorBig }"
+    :style="{ left: cx + 'px', top: cy + 'px' }"
+  >
     <div class="cursor__dot"></div>
+    <div class="cursor__ring"></div>
   </div>
 
   <NavBar         @hover="cursorBig = true" @unhover="cursorBig = false" />
@@ -50,7 +54,6 @@ onMounted(() => {
   setTimeout(scan, 300)
 
   // ── theme observer ──
-  // tracks which section occupies the most of the viewport
   const sections = document.querySelectorAll('[data-theme]')
 
   const themeObserver = new IntersectionObserver(entries => {
@@ -66,9 +69,57 @@ onMounted(() => {
     })
   }, {
     threshold: 0,
-    rootMargin: '-50% 0px -50% 0px', // triggers when section crosses the middle of the viewport
+    rootMargin: '-50% 0px -50% 0px',
   })
 
   sections.forEach(s => themeObserver.observe(s))
 })
 </script>
+
+<style>
+/* ── Cursor ── */
+.cursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+}
+
+.cursor__dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 5px;
+  height: 5px;
+  background: var(--fg, #111);
+  border-radius: 50%;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cursor__ring {
+  width: 26px;
+  height: 26px;
+  border: 0.75px solid var(--fg, #111);
+  border-radius: 50%;
+  transform: scale(1);
+  opacity: 1;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* hover state — ring collapses, dot blooms */
+.cursor--big .cursor__ring {
+  transform: scale(0);
+  opacity: 0;
+}
+.cursor--big .cursor__dot {
+  transform: translate(-50%, -50%) scale(5);
+}
+
+/* hide native cursor everywhere */
+*, *::before, *::after {
+  cursor: none !important;
+}
+</style>
