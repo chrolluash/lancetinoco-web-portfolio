@@ -361,8 +361,8 @@ onUnmounted(() => {
   /* disciplines top-left */
   .hero__disciplines {
     position: absolute;
-    top: 4.5rem;
-    left: 1.5rem;
+    top: 1rem;
+    left: 1rem;
     right: auto;
     align-items: flex-start;
     flex-direction: column;
