@@ -321,7 +321,7 @@ const projects = [
     type: 'Web App',
     lang: 'Vue.js / Supabase / PostgreSQL',
     media: [
-      { type: 'video', src: '/projects/tasklist.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/tasklist.mp4' },
     ],
     live: 'https://tasklistdffy.vercel.app',
     github: '#',
@@ -347,7 +347,7 @@ const projects = [
     ],
   },
   {
-    name: '<em>Fingerprint</em> Scanner Test and Template using HF4000',
+    name: '<em>Fingerprint</em> Scanner Tester and Template using HF4000',
     desc: 'Browser dev & testing template for HF4000 Fingerprint Scanner. Enrollment and fingerprint comparison using WebSocket. Built with HF4000 manufacturerSDK.',
     type: 'Dev Tool · Internship',
     lang: 'JavaScript',
@@ -367,7 +367,7 @@ const projects = [
     type: 'Web App · Internship',
     lang: 'Blade / PHP',
     media: [
-      { type: 'video', src: '/projects/leaverequest.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/leaverequest.mp4' },
     ],
     live: '#',
     github: '#',
@@ -397,7 +397,7 @@ const projects = [
     type: 'Web App · E-Commerce',
     lang: 'PHP',
     media: [
-      { type: 'video', src: '/projects/big4k.mp4' },
+      { type: 'video', src: 'https://okmbstzhmjqscmgoimxm.supabase.co/storage/v1/object/public/videos/big4k.mp4' },
     ],
     live: '#',
     github: '#',
