@@ -52,18 +52,6 @@ body::before {
 
 a { color: inherit; text-decoration: none; }
 
-.cursor {
-  position: fixed; z-index: 10000; pointer-events: none;
-  transform: translate(-50%, -50%);
-  mix-blend-mode: difference;
-}
-.cursor__dot {
-  width: 8px; height: 8px;
-  background: var(--fg); border-radius: 50%;
-  transition: transform 0.25s var(--ease-out);
-}
-.cursor--big .cursor__dot { transform: scale(6); }
-
 .u-label {
   font-family: var(--font-mono);
   font-size: 0.55rem;
@@ -80,6 +68,7 @@ a { color: inherit; text-decoration: none; }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
 
 ::selection { background: var(--fg); color: var(--bg); }
-::-webkit-scrollbar { width: 2px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--fg); }
+
+/* ── Hide scrollbar — replaced by progress bar ── */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }

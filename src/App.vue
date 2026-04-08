@@ -1,4 +1,7 @@
 <template>
+  <!-- scroll progress bar -->
+  <div class="progress-bar" :style="{ transform: `scaleX(${progress})` }"></div>
+
   <div
     class="cursor"
     :class="{ 'cursor--big': cursorBig }"
@@ -19,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import NavBar         from './components/NavBar.vue'
 import HeroSection    from './components/HeroSection.vue'
 import MarqueeBar     from './components/MarqueeBar.vue'
@@ -32,12 +35,21 @@ import FooterSection  from './components/FooterSection.vue'
 const cx        = ref(-100)
 const cy        = ref(-100)
 const cursorBig = ref(false)
+const progress  = ref(0)
+
+function onScroll() {
+  const scrollTop    = window.scrollY
+  const docHeight    = document.documentElement.scrollHeight - window.innerHeight
+  progress.value     = docHeight > 0 ? scrollTop / docHeight : 0
+}
 
 onMounted(() => {
   document.addEventListener('mousemove', e => {
     cx.value = e.clientX
     cy.value = e.clientY
   })
+
+  window.addEventListener('scroll', onScroll, { passive: true })
 
   // ── reveal observer ──
   const revealObserver = new IntersectionObserver(entries => {
@@ -74,9 +86,28 @@ onMounted(() => {
 
   sections.forEach(s => themeObserver.observe(s))
 })
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+})
 </script>
 
 <style>
+/* ── Progress bar ── */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--fg);
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 99998;
+  pointer-events: none;
+  transition: background 0.7s var(--ease-out);
+}
+
 /* ── Cursor ── */
 .cursor {
   position: fixed;
