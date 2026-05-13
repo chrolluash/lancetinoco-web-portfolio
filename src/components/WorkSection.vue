@@ -21,8 +21,8 @@
           :key="p.name"
           class="work__card reveal"
           :style="{ transitionDelay: (i * 0.06) + 's' }"
-          @mouseenter="$emit('hover')"
-          @mouseleave="$emit('unhover')"
+          @mouseenter="$emit('hover'); $emit('cursor-white')"
+          @mouseleave="$emit('unhover'); if (!active) $emit('cursor-default')"
           @click="openModal(p)"
         >
           <div class="work__card-bg">
@@ -106,7 +106,7 @@
           <button class="modal__close u-label" @click="closeModal" @mouseenter="$emit('hover')" @mouseleave="$emit('unhover')">✕ close</button>
 
           <span class="modal__num u-label">
-            {{ String(projects.indexOf(active) + 1).padStart(2, '0') }} / {{ String(projects.length).padStart(2, '0') }}
+            {{ String(activeIndex + 1).padStart(2, '0') }} / {{ String(projects.length).padStart(2, '0') }}
           </span>
 
           <div class="modal__content">
@@ -140,11 +140,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
-defineEmits(['hover', 'unhover'])
+const emit = defineEmits(['hover', 'unhover', 'cursor-white', 'cursor-default'])
 
 // ── Modal & slideshow ──
-const active = ref(null)
-const slideIndex = ref(0)
+const active      = ref(null)
+const activeIndex = ref(-1)
+const slideIndex  = ref(0)
 const currentVideoEl = ref(null)
 let slideTimer = null
 const IMAGE_DURATION = 2500
@@ -185,24 +186,27 @@ watch(active, (val) => {
 })
 
 function openModal(p) {
-  active.value = p
-  slideIndex.value = 0
+  active.value      = p
+  activeIndex.value = projects.indexOf(p)
+  slideIndex.value  = 0
   document.body.style.overflow = 'hidden'
+  emit('cursor-white')
 }
 
 function closeModal() {
   clearTimeout(slideTimer)
-  active.value = null
-  slideIndex.value = 0
+  active.value      = null
+  activeIndex.value = -1
+  slideIndex.value  = 0
   currentVideoEl.value = null
-  // Restore scroll — but only release body overflow if not scroll-locked
   document.body.style.overflow = isLocked ? 'hidden' : ''
+  emit('cursor-default')
 }
 
 function onKeydown(e) {
   if (e.key === 'Escape') closeModal()
   if (e.key === 'ArrowRight') { clearTimeout(slideTimer); nextSlide() }
-  if (e.key === 'ArrowLeft') { clearTimeout(slideTimer); prevSlide() }
+  if (e.key === 'ArrowLeft')  { clearTimeout(slideTimer); prevSlide() }
 }
 
 // ── Horizontal scroll lock ──
@@ -210,7 +214,6 @@ const trackWrap = ref(null)
 let isLocked = false
 
 function onWheel(e) {
-  // Never intercept while modal is open
   if (active.value) return
 
   const el = trackWrap.value
@@ -219,42 +222,35 @@ function onWheel(e) {
   const section = document.getElementById('work')
   if (!section) return
 
-  const rect = section.getBoundingClientRect()
+  const rect    = section.getBoundingClientRect()
   const atEnd   = el.scrollLeft >= el.scrollWidth - el.clientWidth - 2
   const atStart = el.scrollLeft <= 1
 
   if (!isLocked) {
-    // Engage lock when: section top is snapped to viewport top, scrolling down, cards not all shown
     if (rect.top <= 2 && rect.top >= -10 && e.deltaY > 0 && !atEnd) {
       e.preventDefault()
       isLocked = true
       document.body.style.overflow = 'hidden'
-      // Snap section to top instantly so it stays pinned
       section.scrollIntoView({ behavior: 'instant', block: 'start' })
       el.scrollLeft += e.deltaY * 1.2
     }
-    // Not locked and not at trigger point — let page scroll normally
     return
   }
 
-  // Currently locked — intercept all wheel events
   e.preventDefault()
 
-  // Unlock: reached end and still scrolling down → release to continue page scroll
   if (atEnd && e.deltaY > 0) {
     isLocked = false
     document.body.style.overflow = ''
     return
   }
 
-  // Unlock: back at start and scrolling up → release to scroll page up
   if (atStart && e.deltaY < 0) {
     isLocked = false
     document.body.style.overflow = ''
     return
   }
 
-  // Drive horizontal scroll with vertical wheel
   el.scrollLeft += e.deltaY * 1.2
 }
 

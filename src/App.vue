@@ -4,7 +4,7 @@
 
   <div
     class="cursor"
-    :class="{ 'cursor--big': cursorBig }"
+    :class="{ 'cursor--big': cursorBig, 'cursor--white': cursorWhite }"
     :style="{ left: cx + 'px', top: cy + 'px' }"
   >
     <div class="cursor__dot"></div>
@@ -15,7 +15,13 @@
   <HeroSection    data-theme="dark" />
   <MarqueeBar     data-theme="dark" />
   <AboutSection   data-theme="dark" />
-  <WorkSection    data-theme="light"  @hover="cursorBig = true" @unhover="cursorBig = false" />
+  <WorkSection
+    data-theme="light"
+    @hover="cursorBig = true"
+    @unhover="cursorBig = false"
+    @cursor-white="cursorWhite = true"
+    @cursor-default="cursorWhite = false"
+  />
   <StackSection   data-theme="light" />
   <ContactSection data-theme="dark"  @hover="cursorBig = true" @unhover="cursorBig = false" />
   <FooterSection  data-theme="dark"  />
@@ -32,10 +38,11 @@ import StackSection   from './components/StackSection.vue'
 import ContactSection from './components/ContactSection.vue'
 import FooterSection  from './components/FooterSection.vue'
 
-const cx        = ref(-100)
-const cy        = ref(-100)
-const cursorBig = ref(false)
-const progress  = ref(0)
+const cx          = ref(-100)
+const cy          = ref(-100)
+const cursorBig   = ref(false)
+const cursorWhite = ref(false)
+const progress    = ref(0)
 
 function onScroll() {
   const scrollTop    = window.scrollY
@@ -125,7 +132,9 @@ onUnmounted(() => {
   height: 5px;
   background: var(--fg, #111);
   border-radius: 50%;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.25s ease;
 }
 
 .cursor__ring {
@@ -136,8 +145,9 @@ onUnmounted(() => {
   transform: scale(1);
   opacity: 1;
   transition:
-    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity   0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    transform  0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity    0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s ease;
 }
 
 /* hover state — ring collapses, dot blooms */
@@ -147,6 +157,14 @@ onUnmounted(() => {
 }
 .cursor--big .cursor__dot {
   transform: translate(-50%, -50%) scale(5);
+}
+
+/* white state — cursor turns white (for dark cards & modal) */
+.cursor--white .cursor__dot {
+  background: #fff;
+}
+.cursor--white .cursor__ring {
+  border-color: #fff;
 }
 
 /* hide native cursor everywhere */
