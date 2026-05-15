@@ -812,7 +812,6 @@ const projects = [
   opacity: 0;
 }
 
-/* ── Mobile ── */
 @media (max-width: 700px) {
   .work__header {
     margin: 0 1.5rem;
@@ -823,8 +822,8 @@ const projects = [
   .work__card { width: 280px; }
   .work__card-inner { padding: 1.4rem; }
 
-  .modal { padding: 2rem 1.5rem; align-items: flex-end; }
-  .modal__content { max-width: 100%; }
+  .modal { padding: 4rem 1.5rem 5rem; align-items: flex-end; }
+  .modal__content { max-width: 100%; padding-bottom: 1rem; }
   .modal__title { font-size: clamp(2rem, 8vw, 3rem); }
   .modal__bottom { flex-direction: column; align-items: flex-start; }
   .modal__close { top: 1.5rem; right: 1.5rem; }
