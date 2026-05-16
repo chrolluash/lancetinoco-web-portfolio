@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <span class="footer__copy u-label">© 2026 · chrolluash · All rights reserved</span>
+    <span class="footer__copy u-label">© 2026 · All rights reserved</span>
     <a
       href="#"
       class="footer__top"
