@@ -15,6 +15,14 @@
     </div>
 
     <div class="work__track-wrap" ref="trackWrap">
+      <button
+        class="work__scroll-btn work__scroll-btn--left u-label"
+        @click="scrollTrack(-1)"
+        @mouseenter="$emit('hover')"
+        @mouseleave="$emit('unhover')"
+        aria-label="Scroll left"
+      >←</button>
+
       <ul class="work__track">
         <li
           v-for="(p, i) in projects"
@@ -57,6 +65,14 @@
           </div>
         </li>
       </ul>
+
+      <button
+        class="work__scroll-btn work__scroll-btn--right u-label"
+        @click="scrollTrack(1)"
+        @mouseenter="$emit('hover')"
+        @mouseleave="$emit('unhover')"
+        aria-label="Scroll right"
+      >→</button>
     </div>
 
     <!-- ── Modal ── -->
@@ -209,8 +225,16 @@ function onKeydown(e) {
   if (e.key === 'ArrowLeft')  { clearTimeout(slideTimer); prevSlide() }
 }
 
-// ── Horizontal scroll lock ──
+// ── Track scroll buttons ──
 const trackWrap = ref(null)
+
+function scrollTrack(dir) {
+  const el = trackWrap.value
+  if (!el) return
+  el.scrollBy({ left: dir * 360, behavior: 'smooth' })
+}
+
+// ── Horizontal scroll lock ──
 let isLocked = false
 
 function onWheel(e) {
@@ -447,12 +471,15 @@ const projects = [
 
 /* ── Track ── */
 .work__track-wrap {
+  display: flex;
+  align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 3rem 3rem 4rem;
+  padding: 3rem 1.5rem 4rem;
   cursor: none;
+  gap: 0;
 }
 .work__track-wrap::-webkit-scrollbar { display: none; }
 
@@ -462,6 +489,42 @@ const projects = [
   list-style: none;
   width: max-content;
   align-items: stretch;
+  padding: 0 1rem;
+}
+
+/* ── Scroll Buttons ── */
+.work__scroll-btn {
+  flex-shrink: 0;
+  align-self: center;
+  position: sticky;
+  z-index: 10;
+  background: none;
+  border: none;
+  color: var(--fg);
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  opacity: 0.5;
+  transition: opacity 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+}
+.work__scroll-btn:hover {
+  opacity: 1;
+}
+.work__scroll-btn:active {
+  transform: scale(0.9);
+}
+.work__scroll-btn--left {
+  left: 0;
+  margin-right: 0.5rem;
+}
+.work__scroll-btn--right {
+  right: 0;
+  margin-left: 0.5rem;
 }
 
 /* ── Card ── */
@@ -818,9 +881,10 @@ const projects = [
     padding: 4rem 0 2rem;
     border-bottom: none;
   }
-  .work__track-wrap { padding: 2rem 1.5rem 3rem; }
+  .work__track-wrap { padding: 2rem 0.5rem 3rem; }
   .work__card { width: 280px; }
   .work__card-inner { padding: 1.4rem; }
+  .work__scroll-btn { width: 2rem; height: 2rem; font-size: 0.65rem; }
 
   .modal { padding: 4rem 1.5rem 5rem; align-items: flex-end; }
   .modal__content { max-width: 100%; padding-bottom: 1rem; }
