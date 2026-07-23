@@ -46,7 +46,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const disciplines = ['Basic Tech Support', 'Web Development', 'IT Undergrad', 'Web UI/UX', 'IoT',]
+const disciplines = ['Information Technology', 'Basic Tech Support', 'Web Development', 'Web UI/UX', 'IoT',]
 
 const nameWrapRef = ref(null)
 const progress    = ref(0)

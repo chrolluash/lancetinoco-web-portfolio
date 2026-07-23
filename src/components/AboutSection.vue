@@ -17,8 +17,8 @@
     <!-- bio column -->
     <div class="about__body reveal">
       <p class="about__bio">
-        I'm Lance — an Information Technology undergrad and an aspiring full-stack web developer
-        . I build projects and systems for work, freelancing, and as a hobby. Reliable and easy 
+        I'm Lance — with a degree of Bachelor of Science in Information Technology and an aspiring software developer.
+        I build projects and systems for work, freelancing, and as a hobby. Reliable and easy 
         to work with a positive attitude, good communication skills, and cooperative approach in 
         any work environment. I take both simple and challenging tasks seriously, listen well to 
         instructions, and carry out my responsibilities with minimal supervision — always maintaining 
@@ -54,19 +54,19 @@ const traits = ['Web Development', 'Web UI/UX', 'IoT', 'Basic Tech Support', 'IT
 
 const timeline = [
   {
+    year: '2023 - 2026',
+    title: 'Pamantasang Lungsod ng Muntinlupa — Information Technology Undergrad',
+    desc: 'Graduated with a degree of Bachelor of Science in Information Technology.',
+  },
+  {
     year: '2025 - 2026',
     title: 'Calofronia Clothing Inc. A Licensee of GUESS? USA — Technical, Helpdesk, & Web Dev Intern',
     desc: 'Did helpdesk, basic technical support, and web development at their IT department from October 2025 to March 2026.',
   },
   {
-    year: '2023 - 2026',
-    title: 'Pamantasang Lungsod ng Muntinlupa — Information Technology Undergrad',
-    desc: '2nd yr to 4th yr of college, continued taking up Informaton Technology and my journey in the IT field. Expected to graduate in 2026.',
-  },
-  {
     year: '2022 - 2023',
     title: 'Lyceum of Alabang — Information Technology',
-    desc: '1st yr of college, taking up Informaton Technology where I learned and honed my programming skills. Transferrred to Pamantasan Lungsod ng Muntinlupa after 1 year.',
+    desc: '1st yr of college, taking up Informaton Technology where I learned and honed my programming skills. Transferrred to Pamantasan Lungsod ng Muntinlupa the next school year.',
   },
   {
     year: '2020 - 2022',
